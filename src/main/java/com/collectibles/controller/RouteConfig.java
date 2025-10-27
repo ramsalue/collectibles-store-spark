@@ -150,18 +150,10 @@ public class RouteConfig {
             get("/:id", userController::getUserById);
 
             // POST /users/:id - Add new user
-            post("/:id", (request, response) -> {
-                // Will be implemented in Phase 7
-                response.status(200);
-                return "{ \"message\": \"POST /users/:id endpoint - to be implemented\" }";
-            });
+            post("/:id", userController::addUser);
 
             // PUT /users/:id - Update existing user
-            put("/:id", (request, response) -> {
-                // Will be implemented in Phase 7
-                response.status(200);
-                return "{ \"message\": \"PUT /users/:id endpoint - to be implemented\" }";
-            });
+            put("/:id", userController::updateUser);
 
             // DELETE /users/:id - Delete user
             delete("/:id", (request, response) -> {

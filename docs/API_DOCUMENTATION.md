@@ -287,7 +287,227 @@ fetch('http://localhost:4567/users/user1')
   .then(data => console.log(data))
   .catch(error => console.error('Error:', error));
 ```
+### 5. Add New User
 
+Creates a new user in the system.
+
+**Endpoint:** `POST /users/:id`
+
+**URL Parameters:**
+- `id` (string, required): Unique identifier for the new user
+
+**Request Headers:**
+```
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "name": "Maria Garcia",
+  "email": "maria@example.com",
+  "role": "buyer"
+}
+```
+
+**Field Requirements:**
+- `name` (string, required): Full name of the user
+- `email` (string, required): Valid email address format
+- `role` (string, required): Must be one of: "admin", "buyer", "seller"
+
+**Success Response (201 Created):**
+```json
+{
+  "id": "user4",
+  "name": "Maria Garcia",
+  "email": "maria@example.com",
+  "role": "buyer"
+}
+```
+
+**Error Response (409 Conflict - Duplicate ID):**
+```json
+{
+  "error": true,
+  "message": "User with ID user1 already exists",
+  "timestamp": 1234567890123
+}
+```
+
+**Error Response (400 Bad Request - Missing Field):**
+```json
+{
+  "error": true,
+  "message": "User name is required",
+  "timestamp": 1234567890123
+}
+```
+
+**Error Response (400 Bad Request - Invalid Email):**
+```json
+{
+  "error": true,
+  "message": "Invalid email format",
+  "timestamp": 1234567890123
+}
+```
+
+**Error Response (400 Bad Request - Invalid Role):**
+```json
+{
+  "error": true,
+  "message": "Invalid role. Must be: admin, buyer, or seller",
+  "timestamp": 1234567890123
+}
+```
+
+**Example cURL:**
+```bash
+curl -X POST http://localhost:4567/users/user4 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Maria Garcia",
+    "email": "maria@example.com",
+    "role": "buyer"
+  }'
+```
+
+**Example JavaScript (Fetch):**
+```javascript
+fetch('http://localhost:4567/users/user4', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'Maria Garcia',
+    email: 'maria@example.com',
+    role: 'buyer'
+  })
+})
+  .then(response => {
+    if (response.status === 201) {
+      return response.json();
+    }
+    throw new Error('User creation failed');
+  })
+  .then(data => console.log('User created:', data))
+  .catch(error => console.error('Error:', error));
+```
+
+---
+
+### 6. Update User
+
+Updates an existing user's information.
+
+**Endpoint:** `PUT /users/:id`
+
+**URL Parameters:**
+- `id` (string, required): Unique identifier of the user to update
+
+**Request Headers:**
+```
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "name": "John Updated",
+  "email": "john.updated@example.com",
+  "role": "seller"
+}
+```
+
+**Field Requirements:**
+- `name` (string, required): Full name of the user
+- `email` (string, required): Valid email address format
+- `role` (string, required): Must be one of: "admin", "buyer", "seller"
+
+**Success Response (200 OK):**
+```json
+{
+  "id": "user2",
+  "name": "John Updated",
+  "email": "john.updated@example.com",
+  "role": "seller"
+}
+```
+
+**Error Response (404 Not Found):**
+```json
+{
+  "error": true,
+  "message": "User not found with ID: user999",
+  "timestamp": 1234567890123
+}
+```
+
+**Error Response (400 Bad Request - Missing Field):**
+```json
+{
+  "error": true,
+  "message": "User email is required",
+  "timestamp": 1234567890123
+}
+```
+
+**Error Response (400 Bad Request - Invalid Email):**
+```json
+{
+  "error": true,
+  "message": "Invalid email format",
+  "timestamp": 1234567890123
+}
+```
+
+**Example cURL:**
+```bash
+curl -X PUT http://localhost:4567/users/user2 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "John Updated",
+    "email": "john.updated@example.com",
+    "role": "seller"
+  }'
+```
+
+**Example JavaScript (Fetch):**
+```javascript
+fetch('http://localhost:4567/users/user2', {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'John Updated',
+    email: 'john.updated@example.com',
+    role: 'seller'
+  })
+})
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('User update failed');
+    }
+    return response.json();
+  })
+  .then(data => console.log('User updated:', data))
+  .catch(error => console.error('Error:', error));
+```
+
+---
+
+## HTTP Status Codes
+
+| Code | Meaning | When Used |
+|------|---------|-----------|
+| 200 | OK | Successful GET, PUT |
+| 201 | Created | Successful POST |
+| 400 | Bad Request | Missing/invalid data |
+| 404 | Not Found | Resource doesn't exist |
+| 409 | Conflict | Duplicate resource |
+| 500 | Internal Server Error | Server-side error |
 ---
 
 ## Available Users

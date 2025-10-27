@@ -125,4 +125,192 @@ public class UserController {
         successResponse.put("timestamp", System.currentTimeMillis());
         return JsonUtil.toJson(successResponse);
     }
+    /**
+     * Handles POST /users/:id request to add a new user.
+     *
+     * @param request Spark request object containing the user ID and body
+     * @param response Spark response object
+     * @return JSON string containing the created user or error message
+     */
+    public String addUser(Request request, Response response) {
+        try {
+            // Extract user ID from URL parameter
+            String userId = request.params(":id");
+
+            // Validate that ID was provided
+            if (userId == null || userId.trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("User ID is required");
+            }
+
+            // Get request body
+            String requestBody = request.body();
+
+            // Validate that body is not empty
+            if (requestBody == null || requestBody.trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("Request body is required");
+            }
+
+            // Parse JSON body to User object
+            User newUser = JsonUtil.fromJson(requestBody, User.class);
+
+            // Validate user object
+            if (newUser == null) {
+                response.status(400);
+                return createErrorResponse("Invalid user data");
+            }
+
+            // Set the ID from URL parameter (override any ID in body)
+            newUser.setId(userId);
+
+            // Validate required fields
+            if (newUser.getName() == null || newUser.getName().trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("User name is required");
+            }
+
+            if (newUser.getEmail() == null || newUser.getEmail().trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("User email is required");
+            }
+
+            // Validate email format
+            if (!userService.isValidEmail(newUser.getEmail())) {
+                response.status(400);
+                return createErrorResponse("Invalid email format");
+            }
+
+            if (newUser.getRole() == null || newUser.getRole().trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("User role is required");
+            }
+
+            // Validate role is one of the allowed values
+            if (!isValidRole(newUser.getRole())) {
+                response.status(400);
+                return createErrorResponse("Invalid role. Must be: admin, buyer, or seller");
+            }
+
+            // Try to add the user
+            User createdUser = userService.addUser(newUser);
+
+            // Set response status to 201 Created
+            response.status(201);
+            response.type("application/json");
+
+            // Return created user as JSON
+            return JsonUtil.toJson(createdUser);
+
+        } catch (IllegalArgumentException e) {
+            // Handle duplicate user error
+            response.status(409);
+            return createErrorResponse(e.getMessage());
+        } catch (Exception e) {
+            // Handle unexpected errors
+            response.status(500);
+            return createErrorResponse("Error adding user: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles PUT /users/:id request to update an existing user.
+     *
+     * @param request Spark request object containing the user ID and body
+     * @param response Spark response object
+     * @return JSON string containing the updated user or error message
+     */
+    public String updateUser(Request request, Response response) {
+        try {
+            // Extract user ID from URL parameter
+            String userId = request.params(":id");
+
+            // Validate that ID was provided
+            if (userId == null || userId.trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("User ID is required");
+            }
+
+            // Check if user exists
+            if (!userService.userExists(userId)) {
+                response.status(404);
+                return createErrorResponse("User not found with ID: " + userId);
+            }
+
+            // Get request body
+            String requestBody = request.body();
+
+            // Validate that body is not empty
+            if (requestBody == null || requestBody.trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("Request body is required");
+            }
+
+            // Parse JSON body to User object
+            User updatedUser = JsonUtil.fromJson(requestBody, User.class);
+
+            // Validate user object
+            if (updatedUser == null) {
+                response.status(400);
+                return createErrorResponse("Invalid user data");
+            }
+
+            // Validate required fields
+            if (updatedUser.getName() == null || updatedUser.getName().trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("User name is required");
+            }
+
+            if (updatedUser.getEmail() == null || updatedUser.getEmail().trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("User email is required");
+            }
+
+            // Validate email format
+            if (!userService.isValidEmail(updatedUser.getEmail())) {
+                response.status(400);
+                return createErrorResponse("Invalid email format");
+            }
+
+            if (updatedUser.getRole() == null || updatedUser.getRole().trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("User role is required");
+            }
+
+            // Validate role is one of the allowed values
+            if (!isValidRole(updatedUser.getRole())) {
+                response.status(400);
+                return createErrorResponse("Invalid role. Must be: admin, buyer, or seller");
+            }
+
+            // Update the user
+            User result = userService.updateUser(userId, updatedUser);
+
+            // Set response status and type
+            response.status(200);
+            response.type("application/json");
+
+            // Return updated user as JSON
+            return JsonUtil.toJson(result);
+
+        } catch (IllegalArgumentException e) {
+            // Handle user not found error
+            response.status(404);
+            return createErrorResponse(e.getMessage());
+        } catch (Exception e) {
+            // Handle unexpected errors
+            response.status(500);
+            return createErrorResponse("Error updating user: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Validates if the role is one of the allowed values.
+     *
+     * @param role The role to validate
+     * @return true if role is valid, false otherwise
+     */
+    private boolean isValidRole(String role) {
+        return role.equals("admin") || role.equals("buyer") || role.equals("seller");
+    }
 }
