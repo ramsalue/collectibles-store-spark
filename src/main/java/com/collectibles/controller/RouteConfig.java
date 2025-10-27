@@ -138,21 +138,16 @@ public class RouteConfig {
      * Groups all /users endpoints together.
      */
     private void configureUserRoutes() {
+        // Create UserController instance
+        UserController userController = new UserController(userService);
+
         // Path group for all user-related routes
         path("/users", () -> {
             // GET /users - Retrieve all users
-            get("", (request, response) -> {
-                // Will be implemented in Phase 6
-                response.status(200);
-                return "{ \"message\": \"GET /users endpoint - to be implemented\" }";
-            });
+            get("", userController::getAllUsers);
 
             // GET /users/:id - Retrieve specific user
-            get("/:id", (request, response) -> {
-                // Will be implemented in Phase 6
-                response.status(200);
-                return "{ \"message\": \"GET /users/:id endpoint - to be implemented\" }";
-            });
+            get("/:id", userController::getUserById);
 
             // POST /users/:id - Add new user
             post("/:id", (request, response) -> {
