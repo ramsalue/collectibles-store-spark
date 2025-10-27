@@ -293,9 +293,6 @@ lsof -ti:4567 | xargs kill -9
 ```bash
 mvn clean install -U
 ```
-
-For more issues, see [Troubleshooting Guide](docs/TROUBLESHOOTING.md)
-
 ---
 
 ## Learning Objectives Achieved
@@ -374,7 +371,7 @@ This project is part of the Digital NAO Backend Developer Certification program.
 
 **Sprint 1**: COMPLETE  
 **Current Version**: 1.0.0  
-**Last Updated**: 27/10/2027  
+**Last Updated**: 27/10/2025  
 **Next Sprint**: Templates and Exception Handling
 
 ---
