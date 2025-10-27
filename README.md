@@ -378,7 +378,7 @@ This project is part of the Digital NAO Backend Developer Certification program.
 
 ## Quick Links
 
-- [GitHub Repository](https://github.com/ramsalueq/collectibles-store-spark)
+- [GitHub Repository](https://github.com/ramsalue/collectibles-store-spark)
 - [API Documentation](docs/API_DOCUMENTATION.md)
 - [Quick Start Guide](docs/QUICK_START.md)
 - [Postman Collection](postman/)
