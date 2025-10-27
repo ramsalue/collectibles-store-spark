@@ -313,4 +313,94 @@ public class UserController {
     private boolean isValidRole(String role) {
         return role.equals("admin") || role.equals("buyer") || role.equals("seller");
     }
+
+    /**
+     * Handles DELETE /users/:id request to delete a user.
+     *
+     * @param request Spark request object containing the user ID
+     * @param response Spark response object
+     * @return JSON string with success message or error
+     */
+    public String deleteUser(Request request, Response response) {
+        try {
+            // Extract user ID from URL parameter
+            String userId = request.params(":id");
+
+            // Validate that ID was provided
+            if (userId == null || userId.trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("User ID is required");
+            }
+
+            // Check if user exists before attempting deletion
+            if (!userService.userExists(userId)) {
+                response.status(404);
+                return createErrorResponse("User not found with ID: " + userId);
+            }
+
+            // Delete the user
+            boolean deleted = userService.deleteUser(userId);
+
+            if (deleted) {
+                // Set response status to 204 No Content (successful deletion)
+                response.status(204);
+                return ""; // 204 responses should have empty body
+            } else {
+                // This shouldn't happen if userExists returned true, but handle it
+                response.status(500);
+                return createErrorResponse("Failed to delete user");
+            }
+
+        } catch (Exception e) {
+            // Handle unexpected errors
+            response.status(500);
+            return createErrorResponse("Error deleting user: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Handles OPTIONS /users/:id request to check if a user exists.
+     * This follows REST conventions where OPTIONS is used to check resource availability.
+     *
+     * @param request Spark request object containing the user ID
+     * @param response Spark response object
+     * @return JSON string with existence status
+     */
+    public String checkUserExists(Request request, Response response) {
+        try {
+            // Extract user ID from URL parameter
+            String userId = request.params(":id");
+
+            // Validate that ID was provided
+            if (userId == null || userId.trim().isEmpty()) {
+                response.status(400);
+                return createErrorResponse("User ID is required");
+            }
+
+            // Check if user exists
+            boolean exists = userService.userExists(userId);
+
+            // Set response status based on existence
+            if (exists) {
+                response.status(200);
+            } else {
+                response.status(404);
+            }
+
+            response.type("application/json");
+
+            // Return existence status as JSON
+            Map<String, Object> result = new HashMap<>();
+            result.put("exists", exists);
+            result.put("userId", userId);
+            result.put("timestamp", System.currentTimeMillis());
+
+            return JsonUtil.toJson(result);
+
+        } catch (Exception e) {
+            // Handle unexpected errors
+            response.status(500);
+            return createErrorResponse("Error checking user existence: " + e.getMessage());
+        }
+    }
 }

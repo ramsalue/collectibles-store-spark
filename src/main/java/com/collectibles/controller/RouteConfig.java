@@ -156,18 +156,10 @@ public class RouteConfig {
             put("/:id", userController::updateUser);
 
             // DELETE /users/:id - Delete user
-            delete("/:id", (request, response) -> {
-                // Will be implemented in Phase 8
-                response.status(200);
-                return "{ \"message\": \"DELETE /users/:id endpoint - to be implemented\" }";
-            });
+            delete("/:id", userController::deleteUser);
 
             // OPTIONS /users/:id - Check if user exists
-            options("/:id", (request, response) -> {
-                // Will be implemented in Phase 8
-                response.status(200);
-                return "{ \"message\": \"OPTIONS /users/:id endpoint - to be implemented\" }";
-            });
+            options("/:id", userController::checkUserExists);
         });
 
         System.out.println("User routes configured: /users");

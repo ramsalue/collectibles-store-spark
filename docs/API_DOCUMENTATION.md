@@ -525,6 +525,182 @@ The following sample users are available in the system:
 - **admin**: System administrator with full access
 - **buyer**: Collector who can browse and purchase items
 - **seller**: User who can list and sell collectible items
+
+### 7. Delete User
+
+Removes a user from the system.
+
+**Endpoint:** `DELETE /users/:id`
+
+**URL Parameters:**
+- `id` (string, required): Unique identifier of the user to delete
+
+**Request:**
+- Method: DELETE
+- Headers: None required
+- Body: None
+
+**Success Response (204 No Content):**
+```
+(Empty body)
+```
+
+**Error Response (404 Not Found):**
+```json
+{
+  "error": true,
+  "message": "User not found with ID: user999",
+  "timestamp": 1234567890123
+}
+```
+
+**Error Response (400 Bad Request):**
+```json
+{
+  "error": true,
+  "message": "User ID is required",
+  "timestamp": 1234567890123
+}
+```
+
+**Example cURL:**
+```bash
+curl -X DELETE http://localhost:4567/users/user4
+```
+
+**Example JavaScript (Fetch):**
+```javascript
+fetch('http://localhost:4567/users/user4', {
+  method: 'DELETE'
+})
+  .then(response => {
+    if (response.status === 204) {
+      console.log('User deleted successfully');
+    } else if (response.status === 404) {
+      console.log('User not found');
+    }
+  })
+  .catch(error => console.error('Error:', error));
+```
+
+**Important Notes:**
+- Successful deletion returns 204 No Content with empty body
+- Deletion is permanent and cannot be undone
+- Attempting to delete a non-existent user returns 404
+
+---
+
+### 8. Check User Exists
+
+Checks whether a user exists in the system without retrieving full user data.
+
+**Endpoint:** `OPTIONS /users/:id`
+
+**URL Parameters:**
+- `id` (string, required): Unique identifier of the user to check
+
+**Request:**
+- Method: OPTIONS
+- Headers: None required
+- Body: None
+
+**Success Response (200 OK - User Exists):**
+```json
+{
+  "exists": true,
+  "userId": "user1",
+  "timestamp": 1234567890123
+}
+```
+
+**Response (404 Not Found - User Does Not Exist):**
+```json
+{
+  "exists": false,
+  "userId": "user999",
+  "timestamp": 1234567890123
+}
+```
+
+**Error Response (400 Bad Request):**
+```json
+{
+  "error": true,
+  "message": "User ID is required",
+  "timestamp": 1234567890123
+}
+```
+
+**Example cURL:**
+```bash
+curl -X OPTIONS http://localhost:4567/users/user1
+```
+
+**Example JavaScript (Fetch):**
+```javascript
+fetch('http://localhost:4567/users/user1', {
+  method: 'OPTIONS'
+})
+  .then(response => response.json())
+  .then(data => {
+    if (data.exists) {
+      console.log('User exists');
+    } else {
+      console.log('User does not exist');
+    }
+  })
+  .catch(error => console.error('Error:', error));
+```
+
+**Use Cases:**
+- Check if user exists before attempting operations
+- Validate user IDs without retrieving sensitive data
+- Lightweight existence verification
+
+---
+
+## Complete User Endpoints Summary
+
+| Method | Endpoint | Purpose | Success Status |
+|--------|----------|---------|----------------|
+| GET | /users | Retrieve all users | 200 OK |
+| GET | /users/:id | Retrieve specific user | 200 OK |
+| POST | /users/:id | Create new user | 201 Created |
+| PUT | /users/:id | Update existing user | 200 OK |
+| DELETE | /users/:id | Delete user | 204 No Content |
+| OPTIONS | /users/:id | Check if user exists | 200 OK / 404 Not Found |
+
+---
+
+## CRUD Operations
+
+### Create (POST)
+Creates a new user with provided data.
+- Requires: name, email, role
+- Returns: 201 with created user
+- Error: 409 if user already exists
+
+### Read (GET)
+Retrieves user(s) from the system.
+- Single: GET /users/:id (200 or 404)
+- Multiple: GET /users (200 with array)
+
+### Update (PUT)
+Updates existing user's information.
+- Requires: name, email, role
+- Returns: 200 with updated user
+- Error: 404 if user doesn't exist
+
+### Delete (DELETE)
+Removes user from the system.
+- Returns: 204 No Content
+- Error: 404 if user doesn't exist
+- Warning: Operation is permanent
+
+### Exists Check (OPTIONS)
+Lightweight check for user existence.
+- Returns: 200 if exists, 404 if not
+- Body contains boolean flag
 ---
 
 ## CORS Support
