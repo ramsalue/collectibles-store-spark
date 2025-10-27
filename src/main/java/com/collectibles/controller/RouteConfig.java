@@ -69,6 +69,7 @@ public class RouteConfig {
      * This allows the API to be accessed from web applications on different domains.
      */
     private void enableCORS() {
+        // Handle OPTIONS preflight requests
         options("/*", (request, response) -> {
             String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
             if (accessControlRequestHeaders != null) {
@@ -83,14 +84,7 @@ public class RouteConfig {
             return "OK";
         });
 
-        // Apply CORS headers to all responses
-        before((request, response) -> {
-            response.header("Access-Control-Allow-Origin", ServerConfig.ALLOWED_ORIGINS);
-            response.header("Access-Control-Allow-Methods", ServerConfig.ALLOWED_METHODS);
-            response.header("Access-Control-Allow-Headers", ServerConfig.ALLOWED_HEADERS);
-            response.header("Access-Control-Max-Age", ServerConfig.MAX_AGE);
-            response.type(ServerConfig.JSON_CONTENT_TYPE);
-        });
+        // NOTE: CORS headers are now set in configureFilters() before filter
     }
 
     /**
@@ -100,8 +94,25 @@ public class RouteConfig {
     private void configureFilters() {
         // Before filter - runs before every request
         before((request, response) -> {
+            // CORS headers (from Phase 4)
+            response.header("Access-Control-Allow-Origin", ServerConfig.ALLOWED_ORIGINS);
+            response.header("Access-Control-Allow-Methods", ServerConfig.ALLOWED_METHODS);
+            response.header("Access-Control-Allow-Headers", ServerConfig.ALLOWED_HEADERS);
+            response.header("Access-Control-Max-Age", ServerConfig.MAX_AGE);
+
+            // Set default content type
+            response.type(ServerConfig.JSON_CONTENT_TYPE);
+
             // Log incoming request
             System.out.println(request.requestMethod() + " " + request.pathInfo());
+
+            // Security headers (from Phase 9)
+            response.header("X-Content-Type-Options", ServerConfig.X_CONTENT_TYPE_OPTIONS);
+            response.header("X-Frame-Options", ServerConfig.X_FRAME_OPTIONS);
+            response.header("X-XSS-Protection", ServerConfig.X_XSS_PROTECTION);
+
+            // Server identification
+            response.header("Server", ServerConfig.SERVER_NAME);
         });
 
         // After filter - runs after every request
@@ -109,6 +120,17 @@ public class RouteConfig {
             // Ensure content type is set
             if (response.type() == null) {
                 response.type(ServerConfig.JSON_CONTENT_TYPE);
+            }
+
+            // Add cache control based on method
+            if (request.requestMethod().equals("GET")) {
+                if (request.pathInfo().startsWith("/items")) {
+                    response.header("Cache-Control", ServerConfig.CACHE_CONTROL_PUBLIC);
+                } else {
+                    response.header("Cache-Control", ServerConfig.CACHE_CONTROL_NO_CACHE);
+                }
+            } else {
+                response.header("Cache-Control", ServerConfig.CACHE_CONTROL_NO_CACHE);
             }
         });
     }
@@ -169,6 +191,14 @@ public class RouteConfig {
      * Configures utility routes like health check and API info.
      */
     private void configureUtilityRoutes() {
+
+        /*/ ---  NEW TEST ROUTE ---
+        get("/test-headers", (request, response) -> {
+            response.type(ServerConfig.JSON_CONTENT_TYPE);
+            return "{ \"message\": \"Header test successful\" }";
+        });
+        // --- END OF NEW ROUTE ---*/
+
         // Root route - API information
         get("/", (request, response) -> {
             response.type(ServerConfig.JSON_CONTENT_TYPE);

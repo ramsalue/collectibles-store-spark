@@ -9,6 +9,8 @@ package com.collectibles.config;
  */
 public class ServerConfig {
 
+    // --- FROM PHASE 4 ---
+
     // Server configuration
     public static final int DEFAULT_PORT = 4567;
     public static final String API_VERSION = "v1";
@@ -23,6 +25,20 @@ public class ServerConfig {
     // Response configuration
     public static final String JSON_CONTENT_TYPE = "application/json";
     public static final String CHARSET = "UTF-8";
+
+    // --- FROM PHASE 9 ---
+
+    // Security headers
+    public static final String X_CONTENT_TYPE_OPTIONS = "nosniff";
+    public static final String X_FRAME_OPTIONS = "DENY";
+    public static final String X_XSS_PROTECTION = "1; mode=block";
+
+    // Cache control
+    public static final String CACHE_CONTROL_NO_CACHE = "no-cache, no-store, must-revalidate";
+    public static final String CACHE_CONTROL_PUBLIC = "public, max-age=3600";
+
+    // Server identification
+    public static final String SERVER_NAME = "Collectibles-Store-API";
 
     /**
      * Gets the server port from environment variable or returns default.
